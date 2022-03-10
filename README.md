@@ -57,7 +57,7 @@ echo '{"key1": "value1", "key2": "value2","key3": "value3","key4": "value4"}' >>
 ```
 
 
-## method 1: ansible script
+## method 2: ansible script
 
 1. pre-requirement:   
 ```
