@@ -1,0 +1,52 @@
+- name: opsagent install on ec2 or on-premise playbook
+  hosts: amazon-linux2
+  # hosts: centos-8-stream
+  become: true
+  tasks:
+    - name: Download Cloud Ops agent repo
+      get_url: 
+        url: https://dl.google.com/cloudagents/add-google-cloud-ops-agent-repo.sh
+        dest: /tmp/add-google-cloud-ops-agent-repo.sh
+        mode: '0440'
+    - name: Install Cloud Ops agent repo
+      ansible.builtin.shell: bash /tmp/add-google-cloud-ops-agent-repo.sh
+    - name: Install Cloud Ops agent
+      yum:
+        name:
+          - google-cloud-ops-agent
+        state: present
+    - name: Create /etc/google/auth/ directory
+      ansible.builtin.file:
+        path: /etc/google/auth/
+        state: directory
+        mode: '0770'
+    - name: Create /etc/systemd/system/google-cloud-ops-agent-fluent-bit.service.d/ directory to store the systemd override file
+      ansible.builtin.file:
+        path: /etc/systemd/system/google-cloud-ops-agent-fluent-bit.service.d/
+        state: directory
+        mode: '0770'
+    - name: Install Google Cloud credentials
+      ansible.builtin.copy:
+        src: /home/cliu/cliu201-sa.json
+        dest: /etc/google/auth/application_default_credentials.json
+        mode: '0770'
+    - name: Add credentials to environment for logging
+      ansible.builtin.template:
+        src: google-cloud-ops-agent-fluent-bit.service.j2
+        dest: /etc/systemd/system/google-cloud-ops-agent-fluent-bit.service.d/override.conf
+        owner: root
+        group: root
+        mode: '0644'
+    - name: copy opscenter config file 
+      ansible.builtin.copy:
+        src: opsagent_config.yaml
+        dest: /etc/google-cloud-ops-agent/config.yaml
+        owner: root
+        group: root
+        mode: '0740'   
+    - name: Start Cloud Ops agent fluent bit service
+      ansible.builtin.systemd:
+        name: google-cloud-ops-agent-fluent-bit.service
+        state: restarted
+        enabled: yes
+        daemon_reload: yes
