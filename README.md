@@ -27,7 +27,7 @@ Environment='GOOGLE_SERVICE_CREDENTIALS=/etc/google/auth/application_default_cre
 ```
 
 5. config the ops agent fluent bit service
-'''
+```
 logging:
   receivers:
     cliu-test-1:
@@ -47,7 +47,7 @@ logging:
         - cliu-test-1
         processors:
         - cliu-json-log
-'''
+```ß
 
 
 6. restart the ops agent service and echo json log to test the result
