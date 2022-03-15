@@ -1,0 +1,55 @@
+- name: fluentbit install on ec2 or on-premise playbook
+  hosts: amazon-linux2
+  # hosts: centos-8-stream
+  become: true
+  tasks:
+  # https://docs.fluentbit.io/manual/installation/linux/amazon-linux#install-on-amazon-linux-2
+  - name: Add Fluent Bit repository for amazon-linux2
+    yum_repository:
+      name: Fluent-Bit 
+      description: Fluent Bit repo for amazon-linux2
+      baseurl: https://packages.fluentbit.io/amazonlinux/2/$basearch/
+      gpgcheck: yes
+      gpgkey: 
+      - https://packages.fluentbit.io/fluentbit.key
+      enabled: yes
+  # install fluent bit latest version
+  - name: Install Fluent Bit
+    yum:
+      name:
+      - fluent-bit
+      state: present
+  # upload the sa json file into specific directory
+  - name: Create /etc/google/auth/ directory
+    ansible.builtin.file:
+      path: /etc/google/auth/
+      state: directory
+      mode: '0770'
+  - name: Install Google Cloud credentials
+    ansible.builtin.copy:
+      src: /home/cliu/cliu201-sa.json
+      dest: /etc/google/auth/application_default_credentials.json
+      mode: '0770'
+  # add input and output into the fluent bit config file
+  - name: setup the logs into cloud logging(stackdriver)
+    blockinfile:
+      path: /etc/fluent-bit/fluent-bit.conf
+      insertafter: EOF
+      block: |
+        [INPUT]
+            name        tail
+            path        /tmp/*.log
+            parser      json
+            tag         cliu-fluentbit-1
+        [OUTPUT]
+            Name        stackdriver
+            Match       cliu-fluentbit-1
+            google_service_credentials    /etc/google/auth/application_default_credentials.json
+            resource    global
+  - name: Start fluent bit service
+    ansible.builtin.systemd:
+      name: fluent-bit.service
+      state: restarted
+      enabled: yes
+      daemon_reload: yes
+

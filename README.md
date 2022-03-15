@@ -1,3 +1,12 @@
+# ansible playbook: fluent bit + stack driver output on amazon linux 2
+
+prepare your service account json file and run ansible playbook
+
+```
+ansible-playbook -i hosts -u ec2-user --private-key ~/.ssh/argolis.pem  fluentbit.yaml
+```
+
+
 # opsagent-on-aws
 
 ## method 1: manual steps
@@ -67,8 +76,8 @@ echo "amazon linux 2" > /etc/redhat-release   # only for amazon linux since the 
 2. prepare your service account json file and run ansible playbook
 ```
 # for amazone linux
-ansible-playbook -i hosts -u ec2-user --private-key ~/.ssh/argolis.pem  main.yaml
+ansible-playbook -i hosts -u ec2-user --private-key ~/.ssh/argolis.pem  opsagent.yaml
 
 # for centos linux
-ansible-playbook -i hosts -u centos --private-key ~/.ssh/argolis.pem  main.yaml
+ansible-playbook -i hosts -u centos --private-key ~/.ssh/argolis.pem  opsagent.yaml
 ```
