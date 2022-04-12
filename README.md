@@ -2,7 +2,7 @@
 
 ```mermaid
 flowchart TD
-A{2 Install Methods} --> B[OpenSource Fluentbit(recommendation)] 
+A[2 Install Methods] --> B[OpenSource Fluentbit] 
 A --> C[google opsagent]
 B --> B1[Ansible Playbook]
 C --> C1[Manual Install]
