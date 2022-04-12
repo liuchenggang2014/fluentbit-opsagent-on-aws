@@ -3,7 +3,7 @@
 ```mermaid
 flowchart TD
 A{2 Install Methods} --> |recommend| B[1-Fluentbit] 
-A --> |not-recommend| C[2-google opsagent]
+A --> C[2-google opsagent]
 B --> B1[Ansible Playbook]
 C --> C1[Manual Install]
 C --> C2[Ansible Playbook]
