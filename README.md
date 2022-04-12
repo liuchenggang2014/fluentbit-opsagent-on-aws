@@ -1,4 +1,16 @@
-# ansible playbook: fluent bit + stack driver output on amazon linux 2
+# 2 methods to ingest log into google cloud logging from aws or on-premise machines.
+
+```mermaid
+flowchart TD
+A{2 Install Methods} --> B[OpenSource Fluentbit(recommendation)] 
+A --> C[google opsagent]
+B --> B1[Ansible Playbook]
+C --> C1[Manual Install]
+C --> C2[Ansible Playbook]
+```
+
+
+# Method1: ansible playbook: fluent bit + stack driver output on amazon linux 2
 
 prepare your service account json file and run ansible playbook
 
@@ -7,9 +19,9 @@ ansible-playbook -i hosts -u ec2-user --private-key ~/.ssh/argolis.pem  fluentbi
 ```
 
 
-# opsagent-on-aws
+# Method2: opsagent-on-aws
 
-## method 1: manual steps
+## method 2-1: manual steps
 
 1. download the google cloud ops agent repo
 ```
@@ -66,7 +78,7 @@ echo '{"key1": "value1", "key2": "value2","key3": "value3","key4": "value4"}' >>
 ```
 
 
-## method 2: ansible script
+## method 2-2: ansible script
 
 1. pre-requirement:   
 ```
