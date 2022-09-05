@@ -1,0 +1,63 @@
+- name: fluentbit install on centos playbook
+  # hosts: amazon-linux2
+  # hosts: centos-8-stream
+  hosts: centos-7
+  become: true
+  tasks:
+  # https://docs.fluentbit.io/manual/installation/linux/redhat-centos
+  - name: Add Fluent Bit repository for centos
+    yum_repository:
+      name: Fluent-Bit
+      description: Fluent Bit repo for centos
+      baseurl: https://packages.fluentbit.io/centos/$releasever/$basearch/
+      gpgcheck: yes
+      gpgkey: 
+      - https://packages.fluentbit.io/fluentbit.key
+      enabled: yes
+  # install fluent bit latest version
+  - name: Install Fluent Bit
+    yum:
+      name:
+      - fluent-bit
+      state: present
+  # upload the sa json file into specific directory
+  - name: Create /etc/google/auth/ directory
+    ansible.builtin.file:
+      path: /etc/google/auth/
+      state: directory
+      mode: '0770'
+  - name: Install Google Cloud credentials
+    ansible.builtin.copy:
+      src: /home/cliu/cliu201-sa.json
+      dest: /etc/google/auth/application_default_credentials.json
+      mode: '0770'
+  # add input and output into the fluent bit config file
+  - name: setup the logs into cloud logging(stackdriver)
+    blockinfile:
+      path: /etc/fluent-bit/fluent-bit.conf
+      insertafter: EOF
+      block: |
+        [INPUT]
+            Buffer_Chunk_Size 512k
+            Buffer_Max_Size   5M
+            DB          /home/centos/default_pipeline_syslog
+            name        tail
+            path        /tmp/*.log
+            parser      json
+            tag         cliu-fluentbit-2
+            Read_from_Head    True
+            Rotate_Wait       30
+            Skip_Long_Lines   On
+            storage.type      filesystem
+        [OUTPUT]
+            Name        stackdriver
+            Match       cliu-fluentbit-2
+            google_service_credentials    /etc/google/auth/application_default_credentials.json
+            resource    global
+  - name: Start fluent bit service
+    ansible.builtin.systemd:
+      name: fluent-bit.service
+      state: restarted
+      enabled: yes
+      daemon_reload: yes
+
