@@ -26,6 +26,7 @@ test the json log into cloud logging
 echo '{"key1": "12345", "key2": "abc", "time": "2006-07-28T15:22:04Z"}' >> /tmp/1.log
 ```
 
+Fluentbit Golden Config
 ```
 [SERVICE]
     # Flush
