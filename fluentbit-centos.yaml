@@ -18,7 +18,7 @@
   - name: Install Fluent Bit
     yum:
       name:
-      - fluent-bit.1.9.8-1.x86_64
+      - fluent-bit-1.9.8-1
       state: present
       allow_downgrade: true
   # upload the sa json file into specific directory
