@@ -14,12 +14,13 @@
       gpgkey: 
       - https://packages.fluentbit.io/fluentbit.key
       enabled: yes
-  # install fluent bit latest version
+  # install fluent bit with specific version, since 2.0 have permission bug with stack driver on 2023/1/11
   - name: Install Fluent Bit
     yum:
       name:
-      - fluent-bit
+      - fluent-bit.1.9.8-1.x86_64
       state: present
+      allow_downgrade: true
   # upload the sa json file into specific directory
   - name: Create /etc/google/auth/ directory
     ansible.builtin.file:
@@ -31,6 +32,13 @@
       src: /home/cliu/cliu201-sa.json
       dest: /etc/google/auth/application_default_credentials.json
       mode: '0770'
+  # fluentbit log is located in stderr by defalut, change it into the /var/log/fluentbit.log
+  - name: set up the log_file in service to help easy troubleshooting
+    ansible.builtin.lineinfile:
+      path: /etc/fluent-bit/fluent-bit.conf
+      regexp: '^log_file'
+      insertafter: '^\[SERVICE\]'
+      line:  '    log_file    /var/log/fluentbit.log' 
   # add input and output into the fluent bit config file
   - name: setup the logs into cloud logging(stackdriver)
     blockinfile:
